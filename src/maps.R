@@ -31,9 +31,9 @@ colnames(locations) <- c('id', 'lat', 'lon', 'z')
 #sodars, sonics, etc.
 otherSensors <- as.data.frame(cbind('WSU1', 43.3325, -113.102756), stringsAsFactors = FALSE)
 otherSensors <- rbind(otherSensors, cbind('WSU2', 43.4087, -113.0041))
-otherSensors <- rbind(otherSensors, cbind('NOAA1', 43.3228, -113.1050))
-otherSensors <- rbind(otherSensors, cbind('NOAA2', 43.2941, -113.1816))
-#otherSensors <- rbind(otherSensors, cbind('SUM', 43.3963, -113.0218))
+#otherSensors <- rbind(otherSensors, cbind('NOAA1', 43.3228, -113.1050))
+#otherSensors <- rbind(otherSensors, cbind('NOAA2', 43.2941, -113.1816))
+otherSensors <- rbind(otherSensors, cbind('SUM', 43.3963, -113.0218))
 colnames(otherSensors) <- c('id', 'lat', 'lon')
 otherSensors$lat <- as.numeric(otherSensors$lat)
 otherSensors$lon <- as.numeric(otherSensors$lon)
@@ -50,17 +50,24 @@ idx <- locations$id1 %in% c("R1", "R2", "R3", "R4", "R5", "R6", "R18", "R20", "R
         "R24", "R22", "TSW2")
 locations$id1[!idx] <- NA
 
-m <- ggmap(bsbMap) + geom_point(data=locations, aes(x=lon, y=lat), colour = "black", size = 2)
+m <- ggmap(bsbMap) + geom_point(data=locations, aes(x=lon, y=lat), alpha=0.6, colour = "black", size = 2)
 m <- m + geom_text(data=locations, aes(x = lon+0.001, y = lat, label = id1),
-         colour="black", size=3, hjust=0, vjust=1) + theme(legend.position = "none")
-m <- m + annotate("text", x = -113.072, y = 43.384, label = "TWSW1", size = 3)
-m <- m + annotate("text", x = -113.0018, y = 43.3945, label = "R17", size = 3)
-m <- m + annotate("text", x = -113.014, y = 43.4095, label = "R19", size = 3)
+         colour="black", size=4, hjust=0, vjust=1) + theme(legend.position = "none")
+m <- m + annotate("text", x = -113.072, y = 43.384, label = "TWSW1", size = 4)
+m <- m + annotate("text", x = -113.0018, y = 43.3945, label = "R17", size = 4)
+m <- m + annotate("text", x = -113.014, y = 43.4095, label = "R19", size = 4)
 
 m <- m + geom_point(data=otherSensors, aes(x=lon, y=lat), pch = 23, colour = "red", size = 2)
 m <- m + geom_text(data=otherSensors, aes(x = lon+0.001, y = lat, label = id),
-         colour="red", size=3, hjust=0, vjust=1) + theme(legend.position = "none")
-m <- m + xlab("") + ylab("")
+         colour="red", size=4, hjust=0, vjust=1) + theme(legend.position = "none")
+m <- m + xlab("") + ylab("") 
+m <- m + theme(axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18))
+#add a scale bar
+m <- m + geom_segment(aes(x=-113.043, xend = -112.982, y= 43.32, yend = 43.32))
+m <- m + geom_segment(aes(x=-113.043, xend = -112.982, y= 43.32, yend = 43.32))
+m <- m + geom_segment(aes(x=-113.043, xend = -112.982, y= 43.32, yend = 43.32))
+m <- m + annotate("text", x = -113.015, y = 43.315, label = "5 km", size = 4)
+ 
 savePlot(filename="/home/natalie/Desktop/bsb_map.png", type="png")
 
 #zoomed in map with rest of points labeled on the butte
