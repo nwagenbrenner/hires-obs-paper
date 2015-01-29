@@ -38,7 +38,7 @@ if __name__ == '__main__':
 fin=open(f, 'r')
 fout=open(f[f.rfind('/')+1:-3] + 'csv', 'w')
 
-fout.write('DT,HT,SPD,DIR,W,SDW,IW,GPSD,GDIR,U,SDU,NU,IU,SNRU,V,SDV,NV,IV,SNRV,NW,SNRW\n')  
+fout.write('datetime,HT,SPD,DIR,W,SDW,IW,GPSD,GDIR,U,SDU,NU,IU,SNRU,V,SDV,NV,IV,SNRV,NW,SNRW\n')  
 
 for line in fin:
     if line[0:8] == 'NOAAGRD3':
