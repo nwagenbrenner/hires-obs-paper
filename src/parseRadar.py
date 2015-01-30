@@ -40,8 +40,7 @@ fout=open(f[f.rfind('/')+1:-3] + 'csv', 'w')
 
 fout.write('datetime,HT,SPD,DIR,RAD,RAD,RAD,CNT,CNT,CNT,SNR,SNR,SNR\n')  
 
-for line in fin:
-    print line   
+for line in fin:  
     if line.strip() == '$':
         continue
     elif line.strip() == '':
