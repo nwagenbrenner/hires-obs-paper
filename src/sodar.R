@@ -1,8 +1,9 @@
 library(ggplot2)
 library(windtools)
 library(RColorBrewer)
+library(grid)
 
-f<-'/home/natalie/src/hires-obs-paper/src/GRI.csv' #noaa GRI
+f<-'/home/natalie/observations_paper/sodar/GRI.csv' #noaa GRI
 #f<-'/home/natalie/observations_paper/sodar/sunsetlake_radar.csv' #noaa sunset lake
 #f<-'/home/natalie/observations_paper/sodar/sunsetlake.csv' #noaa sunset lake
 #f<-'/home/natalie/observations_paper/sodar/sodar.csv' #wsu downwind
@@ -68,8 +69,8 @@ p<-ggplot(s, aes(x=SPD, y=HT)) +
         theme(axis.text = element_text(size = 14)) +
         theme(axis.title = element_text(size = 14)) +
         #geom_point(data=s, aes(x=W, y=z, colour='red'),shape = 19, size=1.5) +
-        geom_segment(data=s, aes(x=SPD+u_scaled/2, y=HT+v_scaled/2,
-         xend = SPD-u_scaled/2, yend = HT-v_scaled/2, 
+        geom_segment(data=s, aes(x=SPD+u_scaled/4, y=HT+v_scaled,
+         xend = SPD-u_scaled/4, yend = HT-v_scaled, 
          colour = s$W), arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7) +
          #scale_colour_manual(values = c("red", "darkorange", "lightblue", "blue"), name="w (m/s)") +
          #scale_colour_continuous(breaks = c(-1.0, -0.5, 0, 0.5, 1.0), name="w (m/s)") +
