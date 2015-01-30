@@ -3,7 +3,8 @@ library(windtools)
 library(RColorBrewer)
 library(grid)
 
-f<-'/home/natalie/observations_paper/sodar/GRI.csv' #noaa GRI
+f<-'/home/natalie/observations_paper/sodar/raw_files/SunsetRadar_Test1.csv' #sunset lake radar
+#f<-'/home/natalie/observations_paper/sodar/GRI.csv' #noaa GRI
 #f<-'/home/natalie/observations_paper/sodar/sunsetlake_radar.csv' #noaa sunset lake
 #f<-'/home/natalie/observations_paper/sodar/sunsetlake.csv' #noaa sunset lake
 #f<-'/home/natalie/observations_paper/sodar/sodar.csv' #wsu downwind
@@ -16,16 +17,16 @@ sodar$datetime<-as.POSIXct(sodar$datetime, format="%m/%d/%Y %H:%M")
 sodar$datetime<-sodar$datetime - 60*60
 
 #s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour %in% c(12,13) & as.POSIXlt(datetime)$mday == 1))
-s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour == 4 & as.POSIXlt(datetime)$mday == 16))
+s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour == 9 & as.POSIXlt(datetime)$mday == 16))
 
 #-------------------------------------------
 # set NA values and speed, dir if necessary
 #-------------------------------------------
 #noaa ASC (e.g., cox's well, GRI)
-s$SPD[s$SPD==99.99]<-NA
-s$DIR[s$DIR==9999]<-NA
-s$W[s$W==99.99]<-NA
-title<-"GRI"
+#s$SPD[s$SPD==99.99]<-NA
+#s$DIR[s$DIR==9999]<-NA
+#s$W[s$W==99.99]<-NA
+#title<-"GRI"
 
 #wsu scintech
 #s$speed[s$speed==99.99]<-NA
@@ -42,40 +43,17 @@ title<-"GRI"
 #title<-"Sunset Lake Sodar"
 
 #noaa sunset lake radar
-#s$SPD[s$SPD==999999]<-NA
-#s$DIR[s$DIR==999999]<-NA
-#s$HT<-s$HT*1000 #convert km to m
-#title<-"Sunset Lake Radar"
+s$SPD[s$SPD==999999]<-NA
+s$DIR[s$DIR==999999]<-NA
+s$HT<-s$HT*1000 #convert km to m
+title<-"Sunset Lake Radar"
 
 #------------------------------------
 # combined speed, w, dir plots
 #------------------------------------
-s <- na.omit(s)
-u_scaled<-mapply(speed2u, 2, s$DIR)
-v_scaled<-mapply(speed2v, 2, s$DIR)
-speed_bracket <- binSpeeds(s$W)
+plotRadar(s)
 
-s <- cbind(s, u_scaled, v_scaled, speed_bracket)
-#myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")))
-myPalette <- colorRampPalette(c("darkblue", "blue", "lightblue", "darkorange", "red"),space = "rgb")
-sc <- scale_colour_gradientn(colours = myPalette(100), limits=c(-1, 1), 
-       breaks=c(-1.0, -0.5, 0, 0.5, 1.0), name="w (m/s)")
-
-p<-ggplot(s, aes(x=SPD, y=HT)) +
-        #geom_point(shape=19, size=1.5, alpha = 1, colour='darkblue') +
-        xlab("Speed (m/s)") + ylab("Height AGL (m)") +
-        theme_bw() +
-        ggtitle(title) + 
-        theme(axis.text = element_text(size = 14)) +
-        theme(axis.title = element_text(size = 14)) +
-        #geom_point(data=s, aes(x=W, y=z, colour='red'),shape = 19, size=1.5) +
-        geom_segment(data=s, aes(x=SPD+u_scaled/4, y=HT+v_scaled,
-         xend = SPD-u_scaled/4, yend = HT-v_scaled, 
-         colour = s$W), arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7) +
-         #scale_colour_manual(values = c("red", "darkorange", "lightblue", "blue"), name="w (m/s)") +
-         #scale_colour_continuous(breaks = c(-1.0, -0.5, 0, 0.5, 1.0), name="w (m/s)") +
-        sc +
-        facet_grid(. ~ datetime)
+plotSodar(s)
 
 #------------------------------------
 # individual plots for speed, dir, w
@@ -193,5 +171,50 @@ plotSpeedDirection<-function(p1, p2){
     grid.draw(g)
 }
 
+plotRadar<-function(s){
+    s <- na.omit(s)
+    u_scaled<-mapply(speed2u, 0.5, s$DIR)
+    v_scaled<-mapply(speed2v, 0.5, s$DIR)
+    s <- cbind(s, u_scaled, v_scaled)
 
+    p<-ggplot(s, aes(x=SPD, y=HT)) +
+        xlab("Speed (m/s)") + ylab("Height AGL (m)") +
+        theme_bw() +
+        ggtitle(title) + 
+        scale_x_continuous(limits = c(0, 20)) +
+        scale_y_continuous(limits = c(0, 4000)) +
+        theme(axis.text = element_text(size = 14)) +
+        theme(axis.title = element_text(size = 14)) +
+        geom_segment(data=s, aes(x=SPD+u_scaled, y=HT+v_scaled*150, xend=SPD-u_scaled, yend=HT-v_scaled*150), 
+                     arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7) +
+        facet_grid(. ~ datetime)
+
+    return(p)
+}
+
+plotSodar<-function(s){
+    s <- na.omit(s)
+    u_scaled<-mapply(speed2u, 2, s$DIR)
+    v_scaled<-mapply(speed2v, 2, s$DIR)
+
+    s <- cbind(s, u_scaled, v_scaled)
+    myPalette <- colorRampPalette(c("darkblue", "blue", "lightblue", "darkorange", "red"),space = "rgb")
+    sc <- scale_colour_gradientn(colours = myPalette(100), limits=c(-1, 1), 
+       breaks=c(-1.0, -0.5, 0, 0.5, 1.0), name="w (m/s)")
+
+    p<-ggplot(s, aes(x=SPD, y=HT)) +
+        #geom_point(shape=19, size=1.5, alpha = 1, colour='darkblue') +
+        xlab("Speed (m/s)") + ylab("Height AGL (m)") +
+        theme_bw() +
+        ggtitle(title) + 
+        theme(axis.text = element_text(size = 14)) +
+        theme(axis.title = element_text(size = 14)) +
+        geom_segment(data=s, aes(x=SPD+u_scaled/4, y=HT+v_scaled,
+         xend = SPD-u_scaled/4, yend = HT-v_scaled, 
+         colour = s$W), arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7) +
+        sc +
+        facet_grid(. ~ datetime)
+
+    return(p)
+}
 
