@@ -3,7 +3,7 @@
 import sys
 
 def Usage():
-    print '\n    parseSodar.py file'
+    print '\n    parseASCSodar.py file'
     print '\n    file: sodar file to parse'
     print '\n    Parses ASC sodar data from NOAA (e.g., GRI) into a csv file.\n'
     sys.exit(0)
