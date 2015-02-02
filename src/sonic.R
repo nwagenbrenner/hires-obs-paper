@@ -9,8 +9,8 @@ sonic$z<-as.factor(sonic$z)
 
 #s<-subset(sonic, subset=(as.POSIXlt(date)$hour == 10 & as.POSIXlt(date)$mday == 17))
 
-t1<-as.POSIXct(strptime("2010-7-17 00:00:00", '%Y-%m-%d %H:%M:%S'))
-t2<-as.POSIXct(strptime("2010-7-18 00:00:00", '%Y-%m-%d %H:%M:%S'))
+t1<-as.POSIXct(strptime("2010-7-14 00:00:00", '%Y-%m-%d %H:%M:%S'))
+t2<-as.POSIXct(strptime("2010-7-19 00:00:00", '%Y-%m-%d %H:%M:%S'))
 
 s<-subset(sonic, subset=(date > t1 & date < t2))
 
