@@ -5,7 +5,7 @@ import sys
 def Usage():
     print '\n    parseRadar.py file'
     print '\n    file: radar file to parse'
-    print '\n    Parses radar profile data from NOAA (e.g., from Sunset Lake) into a csv file.\n'
+    print '\n    Parses speed and dir radar profile data from NOAA (e.g., from Sunset Lake) into a csv file.\n'
     sys.exit(0)
 
 f = None
@@ -43,11 +43,11 @@ fout.write('datetime,HT,SPD,DIR,RAD,RAD,RAD,CNT,CNT,CNT,SNR,SNR,SNR\n')
 for line in fin:  
     if line.strip() == '$':
         continue
-    elif line.strip() == '':
-        continue
-    elif line[1:6] == 'SERDP':       
+    elif line[1:5] == 'NOAA':
         for i in range(0, 2):
             fin.next()
+    elif line.strip() == '':
+        continue
     elif line.strip()[-3:]=='420':
         datetime=line[5:7]+'/'+line[8:10]+'/20'+line[2:4]+' '+line[11:13]+':'+line[14:16]
         for i in range(0, 6):
