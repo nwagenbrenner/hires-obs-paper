@@ -1,18 +1,45 @@
 library(ggplot2)
 library(windtools)
 
-f<-'/home/natalie/observations_paper/sonic/sonic_summary.csv' 
+#f<-'/home/natalie/observations_paper/sonic/sonic_summary.csv' 
+#f<-'/home/natalie/observations_paper/sonic/sonicsummary_bottom_north.csv' 
+#f<-'/home/natalie/observations_paper/sonic/sonicsummary_top_south.csv' 
+f<-'/home/natalie/observations_paper/sonic/sonic_top_north_summary.csv' 
 
 sonic<-read.table(f, sep=",", header=TRUE, stringsAsFactors=FALSE)
 sonic$date<-as.POSIXct(sonic$date, format="%m/%d/%Y %H:%M")
+
+dir.1<-uv2dir(sonic$U, sonic$V)
+sonic<-cbind(sonic,dir.1)
+
+u_scaled<-mapply(speed2u, 0.5, sonic$dir.1)
+v_scaled<-mapply(speed2v, 0.5, sonic$dir.1)
+#s <- cbind(s, u_scaled, v_scaled)
+sonic <- cbind(sonic, u_scaled, v_scaled)
+sonic<-subset(sonic, subset=(as.POSIXlt(date)$min == 0)) # & as.POSIXlt(date)$mday == 17))
+
+p_sonic<-ggplot(sonic, aes(x=date, y=windspd)) +
+        geom_point(shape=19, size=1.5, alpha = 1) +
+        #scale_colour_manual(values=c("red","green","blue"), name="Height AGL (m)") +
+        scale_colour_discrete(name="Height AGL (m)") +
+        xlab("Datetime") + ylab("Speed (m/s)") +
+        theme_bw() +
+        ggtitle("WSU Sonic Data") + 
+        theme(axis.text = element_text(size = 14)) +
+        theme(axis.title = element_text(size = 14)) +
+        geom_segment(data=sonic, aes(x=date+u_scaled*60*60, y=6+v_scaled/4,
+         xend=date-u_scaled*60*60, yend=6-v_scaled/4), arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7)
+        
+
+#bsb only
 sonic$z<-as.factor(sonic$z)
 
-#s<-subset(sonic, subset=(as.POSIXlt(date)$hour == 10 & as.POSIXlt(date)$mday == 17))
+s<-subset(sonic, subset=(as.POSIXlt(date)$hour == 10 & as.POSIXlt(date)$mday == 17))
 
 t1<-as.POSIXct(strptime("2010-7-14 00:00:00", '%Y-%m-%d %H:%M:%S'))
-t2<-as.POSIXct(strptime("2010-7-19 00:00:00", '%Y-%m-%d %H:%M:%S'))
+t2<-as.POSIXct(strptime("2010-7-20 00:00:00", '%Y-%m-%d %H:%M:%S'))
 
-s<-subset(sonic, subset=(date > t1 & date < t2))
+#s<-subset(sonic, subset=(date > t1 & date < t2))
 
 u_scaled<-mapply(speed2u, 0.5, s$dir.1)
 v_scaled<-mapply(speed2v, 0.5, s$dir.1)
