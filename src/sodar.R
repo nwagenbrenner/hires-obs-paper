@@ -3,12 +3,13 @@ library(windtools)
 library(RColorBrewer)
 library(grid)
 
-#f<-'/home/natalie/observations_paper/sodar/raw_files/SunsetRadar_Test1.csv' #sunset lake radar
-#f<-'/home/natalie/observations_paper/sodar/GRI.csv' #noaa GRI
-#f<-'/home/natalie/observations_paper/sodar/sunsetlake_radar.csv' #noaa sunset lake
-#f<-'/home/natalie/observations_paper/sodar/sunsetlake.csv' #noaa sunset lake
-#f<-'/home/natalie/observations_paper/sodar/sodar.csv' #wsu downwind
-f<-'/home/natalie/observations_paper/sodar/sodar_coxswell.csv' #noaa cox's well
+#f<-'/home/natalie/observations_paper/sodar/SunsetRadar_Test1.csv' #sunset lake radar
+#f<-'/home/natalie/observations_paper/sodar/100715DV.csv' #noaa GRI
+#f<-'/home/natalie/observations_paper/sodar/sunsetlake.csv' #noaa sodar sunset lake (garbage)
+#f<-'/home/natalie/observations_paper/sodar/sodar.csv' #wsu bsb downwind
+f<-'/home/natalie/observations_paper/sodar/110831.csv' #wsu src
+#f<-'/home/natalie/observations_paper/sodar/radar/raw_files/W10222.csv' #GRI radar speed/dir
+#f<-'/home/natalie/observations_paper/sodar/sodar_coxswell.csv' #noaa cox's well
 
 sodar<-read.table(f, sep=",", header=TRUE, stringsAsFactors=FALSE)
 sodar$datetime<-as.POSIXct(sodar$datetime, format="%m/%d/%Y %H:%M")
@@ -17,26 +18,38 @@ sodar$datetime<-as.POSIXct(sodar$datetime, format="%m/%d/%Y %H:%M")
 sodar$datetime<-sodar$datetime - 60*60
 
 #s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour %in% c(12,13) & as.POSIXlt(datetime)$mday == 1))
-s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour == 10 & as.POSIXlt(datetime)$mday == 17))
+s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour == 9 & as.POSIXlt(datetime)$mday == 18 & as.POSIXlt(datetime)$min ==30))
+#s<-subset(sodar, subset=(as.POSIXlt(datetime)$hour == 10 )) # & as.POSIXlt(datetime)$min ==55))
 
 #-------------------------------------------
 # set NA values and speed, dir if necessary
 #-------------------------------------------
 #noaa ASC (e.g., cox's well, GRI)
-s$SPD[s$SPD==99.99]<-NA
-s$DIR[s$DIR==9999]<-NA
-s$W[s$W==99.99]<-NA
+#s$SPD[s$SPD==99.99]<-NA
+#s$DIR[s$DIR==9999]<-NA
+#s$W[s$W==99.99]<-NA
 #title<-"GRI"
-title<-"Cox's Well"
-colnames(s)<-c('datetime','HT','SPD','DIR','W')
+#title<-"Cox's Well"
+#colnames(s)<-c('datetime','HT','SPD','DIR','W','SDW','IW','GPSD','GDIR','U','SDU','NU','IU','SNRU','V','SDV','NV','IV','SNRV','NW','SNRW')
+#s <- na.omit(s)
+#plots<-Sodar(s)
+
+#wsu src scintech
+s$SPD[s$SPD==99.99]<-NA
+s$DIR[s$DIR==999.9]<-NA
+s$W[s$W==99.99]<-NA
+title<-"WSU SRC"
 s <- na.omit(s)
 plotSodar(s)
 
-#wsu scintech
+#wsu bsb scintech
 #s$speed[s$speed==99.99]<-NA
 #s$dir[s$dir==999.9]<-NA
 #s$w[s$w==99.99]<-NA
 #title<-"WSU"
+#colnames(s)<-c('datetime','HT','SPD','DIR','W')
+#s <- na.omit(s)
+#plotSodar(s)
 
 #noaa sunset lake sodar
 #s$speed[s$speed=='***']<-NA
@@ -45,13 +58,15 @@ plotSodar(s)
 #s$speed<-mapply(uv2speed, s$u, s$v)
 #s$dir<-mapply(uv2dir, s$u, s$v)
 #title<-"Sunset Lake Sodar"
+#colnames(s)<-c('datetime', 'HT', 'u', 'v', 'W', 'SPD', 'DIR')
+#plotSodar(s)
 
 #noaa sunset lake radar
 #s$SPD[s$SPD==999999]<-NA
 #s$DIR[s$DIR==999999]<-NA
 #s$HT<-s$HT*1000 #convert km to m
-#title<-"Sunset Lake Radar"
-
+#title<-"GRI Radar"
+#plotRadar(s)
 #------------------------------------
 # combined speed, w, dir plots
 #------------------------------------
@@ -105,8 +120,8 @@ p_w<-ggplot(s, aes(x=W, y=HT)) +
 file = '/home/natalie/observations_paper/bsb_obs_alldata.txt'
 speed <- readData(file)
 
-t1<-as.POSIXct(strptime("2010-7-17 00:00:00", '%Y-%m-%d %H:%M:%S'))
-t2<-as.POSIXct(strptime("2010-7-18 00:00:00", '%Y-%m-%d %H:%M:%S'))
+t1<-as.POSIXct(strptime("2010-7-14 00:00:00", '%Y-%m-%d %H:%M:%S'))
+t2<-as.POSIXct(strptime("2010-7-20 00:00:00", '%Y-%m-%d %H:%M:%S'))
 
 sub<-subset(speed, subset=(datetime > t1 & datetime < t2 & plot == 'R5'))
 
@@ -158,7 +173,7 @@ u<-mapply(speed2u, speed$obs_speed, speed$obs_dir)
 v<-mapply(speed2v, speed$obs_speed, speed$obs_dir)
 speed<-as.data.frame(cbind(speed,u,v))
 
-dt<-as.POSIXct(strptime("2010-9-1 14:00:00", '%Y-%m-%d %H:%M:%S'))
+dt<-as.POSIXct(strptime("2010-7-17 6:00:00", '%Y-%m-%d %H:%M:%S'))
 sub<-subset(speed, subset=(datetime == dt))
 
 lon = -113.027724
@@ -236,10 +251,10 @@ plotSodar<-function(s){
         ggtitle(title) + 
         theme(axis.text = element_text(size = 14)) +
         theme(axis.title = element_text(size = 14)) +
-        scale_x_continuous(limits = c(0, 20)) +
-        scale_y_continuous(limits = c(0, 200)) +
-        geom_segment(data=s, aes(x=SPD+u_scaled, y=HT+v_scaled*2,
-         xend = SPD-u_scaled, yend = HT-v_scaled*2, 
+        scale_x_continuous(limits = c(-2, 15)) +
+        scale_y_continuous(limits = c(0, 300)) +
+        geom_segment(data=s, aes(x=SPD+u_scaled, y=HT+v_scaled*4,
+         xend = SPD-u_scaled, yend = HT-v_scaled*4, 
          colour = s$W), arrow = arrow(ends="first", length = unit(0.2, "cm")), size = 0.7) +
         sc +
         facet_grid(. ~ datetime)
